@@ -150,7 +150,7 @@ econ <- storm[, c("EVTYPE", "PROPDMG", "CROPDMG", "PROPDMGEXP", "CROPDMGEXP")]
 ```
 
 With related unit prefix variables get the explicit number of economic amount casualties :
-```{r eco.prefix}
+```{r eco.prefix, message=FALSE, warning=FALSE}
 # Types of prefix
 table(econ$PROPDMGEXP)
 table(econ$CROPDMGEXP)
