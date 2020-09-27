@@ -1,16 +1,18 @@
 ---
-title: "Public health and economic casulaties due to severe meteoroligical events in the United States between 1950 and 2011"
+title: "Public health and economic casulaties due to meteoroligical events in the United States between 1950 and 2011"
 author: "Akim van Eersel"
-date: "2020-09-26"
+date: "2020-09-27"
 output: 
   html_document: 
     keep_md: yes
+    fig_width: 9
+    fig_height: 8
 editor_options: 
   chunk_output_type: console
 ---
 # Synopsis
 
-In this report we aim to describe most impactful population health consequences and economic damages casualties made by storms and other sever weather events in the United States between 1950 and 2011. From the U.S. National Oceanic and Atmospheric Administration's (NOAA) database we can access the storm data set in order to answer questions about severe weather events. Impactful casualty is defined here as the biggest amount of people touched or economic damages by a weather event. From these setup, for population health consequences it was one tornado with 1742 casualties which was the most harmful event. For economic damages it was one flood with 115 032 500 000$ of damage which was the most impactful event.
+In this report we aim to describe most impactful population health consequences and economic damages casualties made by storms and other weather events in the United States between 1950 and 2011. From the U.S. National Oceanic and Atmospheric Administration's (NOAA) database we can access the storm data set in order to answer questions about severe weather events. Impactful casualty is defined here as the biggest amount of people touched or economic damages by one weather event. From this setup, for population health consequences it was one tornado with 1742 casualties which was the most harmful event. For economic damages it was one flood with 115 032 500 000$ of damage in total which was the most impactful event. However, two other definitions are explored in this report and results are greatly distinct from previous. One is the proportion of types of weather events impacting population health or economy. The other is the total amount of casualties through all types of events occurred.
 
 # System info
 ```{r systeminfo}
@@ -80,7 +82,7 @@ The present analysis address the following questions :
 * Question n°1 deals with "FATALITIES" and "INJURIES" variables to know population health harmful consequences related to each events.  
 * Answering the secondary question needs "PROPDMG" and "CROPDMG" variables along with theirs related decimal unit prefix stored in "PROPDMGEXP" and "CROPDMGEXP" variables. These two variables point to the economic amount casualties.
 
-## Results
+## Analysis
 
 ### Population health consequences
 
@@ -102,39 +104,76 @@ Overview of the casualties variable :
 ```{r health.casualties.overview, message=FALSE}
 summary(health$Casualties)
 
-# Proportion of harmless events :
+# Proportion of harmless events without types distinction :
 mean(health$Casualties == 0)
 
-# Without harmless events :
+# Summary of harmful events without types distinction :
 summary(health$Casualties[health$Casualties != 0])
 ```
 
-Now, the data is grouped by types of events and 
+Now, the data is grouped by types of events and calculations made to get questioning results :
 ```{r health.casualties.harmful}
 # Group by types of events
 byEvtype <- health %>% group_by(EVTYPE)
 
 # Aggregate by types of events with their related maximum number of casualties and proportion of events with at least one casualty
-summaryzero <- summarize(byEvtype, harmful = max(Casualties),
+summaryzero <- summarize(byEvtype, maxCasu = max(Casualties),
+                         totalCasu = sum(Casualties),
                          propHarmEvent = sum(Casualties != 0)/n(),
                          numEvent = n())
-
-# Show the above result by descending order by :
-## 1. maximum number of casualties
-arrange(summaryzero[summaryzero$harmful !=0,], desc(harmful), desc(propHarmEvent))
-
-## 2.proportion of types of events with at least one casualty
-arrange(summaryzero[summaryzero$harmful !=0,],
-        desc(propHarmEvent), desc(harmful))
 ```
 
-#### Conclusion
+Show top 10 of impactful events with the above processed data :
+```{r health.results}
+# Show the above result by descending order :
+## 1. maximum number of casualties made by one event for each types of events
+ansmax <- arrange(summaryzero[summaryzero$maxCasu !=0,],
+                  desc(maxCasu), desc(totalCasu))
+ansmax
 
-The above results show two different types of answer:  
+## 2. proportion of types of events with at least one casualty
+ansprop <- arrange(summaryzero[summaryzero$propHarmEvent !=0,],
+                  desc(propHarmEvent), desc(maxCasu))
+ansprop
+
+## 3. total amount casualties for each types of events
+anstot <- arrange(summaryzero[summaryzero$totalCasu !=0,],
+                   desc(totalCasu), desc(maxCasu))
+anstot
+```
+
+Since most of 10th impactful types of events are present both in summary tables of maximum and total number of casualties, let's compare the two variables with the intersecting data.  
+For better comparison, a plot is made :
+```{r health.tidyPlot}
+library(tidyr)
+library(ggplot2)
+library(RColorBrewer)
+
+# Make tidy data set to make easier plotting :
+interdata <- ansmax[1:10, c("EVTYPE", "maxCasu", "totalCasu")][ansmax$EVTYPE[1:10] %in% anstot$EVTYPE[1:10],]
+colnames(interdata) <- c("TypesOfEvents", "Maximum number of casualties for one event", "Total number of casualties through all observed types of events")
+tidyInterdata <- gather(interdata, key = countingMethod, value = count, -TypesOfEvents)
+
+# Plot :
+pal <- colorRampPalette(brewer.pal(3,"Set2"))
+
+g <- ggplot(tidyInterdata, aes(TypesOfEvents, count))
+g + geom_col(fill = c(pal(5),pal(5))) + facet_wrap(.~countingMethod, scales = "free") + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(title = "Crossing biggest impactful events types between maximum and total amount of casualties") + 
+  labs(y = "Number of casualties")
+```
+
+
+#### Results
+
+The above results show different types of answer:  
  
-      1. One is dealing with the maximum number of casualties, "harmful" variable. In that sense, **tornado** events are the most harmful with the biggest event doing 1742 casualties.  
+      1. One is dealing with the maximum number of casualties, "maxCasu" variable. In that sense, one **tornado** event is the most harmful with the biggest event doing 1742 casualties.  
       
-      2. The other is dealing with the propotion of types of events with at least one casualty, "popHarmEvent" variable. This result is skewed since most of the bigger proportion variable values are related to few events types occurences. By consequence, "popHarmEvent" top 10 have just one type of event observed. In that sense, **heat wave** is the most harmful event with 70 casualties.
+      2. The second is dealing with the propotion of types of events with at least one casualty, "popHarmEvent" variable. This result is skewed since most of the bigger proportion variable values are related to few events types occurences. By consequence, "popHarmEvent" top 10 have just one of each type of event observed. In that sense, **heat wave** is the most harmful event with 70 casualties in only one apparition in the data base. Also, the data labels could be miss leading since **heat wave drought** is another type of event and can be found in the same "popHarmEvent" top 10 results, on position 7 with 19 casualties. If needed, clustering labels could avoid to many distinction between similar labels. 
+      
+      3. Last one is dealing with the total amount of casualties through all occurred events in the database, "totalCasu" variable. In that sense, **tornado** is again the most harmful with a total of 96 979 casualties through 60 652 occurrences.  
 
 Since the analysis is focused on the addition of injuries and fatalities, a deeper analysis could find more precision by doing the same process with distinction between casualties. Other calculations could be made to define harmful casualties, like the total amount of casualties by events types or the related proportion.
 
@@ -194,30 +233,66 @@ summary(econ$Casualties[econ$Casualties != 0])
 ```
 
 Now, the data is grouped by types of events and 
-```{r eco.casualties.harmful}
+```{r econ.casualties.harmful}
 # Group by types of events
 byEvtype <- econ %>% group_by(EVTYPE)
 
 # Aggregate by types of events with their related maximum number of casualties and proportion of events with at least one casualty
-summaryzero <- summarize(byEvtype, harmful = max(Casualties),
+summaryzero <- summarize(byEvtype, maxCasu = max(Casualties),
+                         totalCasu = sum(Casualties),
                          propHarmEvent = sum(Casualties != 0)/n(),
                          numEvent = n())
-
-# Show the above result by descending order by :
-## 1. maximum number of casualties
-arrange(summaryzero[summaryzero$harmful !=0,], desc(harmful), desc(propHarmEvent))
-
-## 2.proportion of types of events with at least one casualty
-arrange(summaryzero[summaryzero$harmful !=0,],
-        desc(propHarmEvent), desc(harmful))
 ```
 
-#### Conclusion
+Show top 10 of impactful events with the above processed data :
+```{r econ.results}
+# Show the above result by descending order :
+## 1. maximum number of casualties made by one event for each types of events
+ansmax <- arrange(summaryzero[summaryzero$maxCasu !=0,],
+                  desc(maxCasu), desc(totalCasu))
+ansmax
+
+## 2. proportion of types of events with at least one casualty
+ansprop <- arrange(summaryzero[summaryzero$propHarmEvent !=0,],
+                  desc(propHarmEvent), desc(maxCasu))
+ansprop
+
+## 3. total amount casualties for each types of events
+anstot <- arrange(summaryzero[summaryzero$totalCasu !=0,],
+                   desc(totalCasu), desc(maxCasu))
+anstot
+```
+
+Since most of 10th impactful types of events are present both in summary tables of maximum and total number of casualties, let's compare the two variables with the intersecting data.  
+For better comparison, a plot is made :
+```{r econ.tidyPlot}
+library(tidyr)
+library(ggplot2)
+library(RColorBrewer)
+
+# Make tidy data set to make easier plotting :
+interdata <- ansmax[1:10, c("EVTYPE", "maxCasu", "totalCasu")][ansmax$EVTYPE[1:10] %in% anstot$EVTYPE[1:10],]
+colnames(interdata) <- c("TypesOfEvents", "Maximum number of casualties for one event", "Total number of casualties through all observed types of events")
+tidyInterdata <- gather(interdata, key = countingMethod, value = count, -TypesOfEvents)
+
+# Plot :
+pal <- colorRampPalette(brewer.pal(3,"Set2"))
+
+g <- ggplot(tidyInterdata, aes(TypesOfEvents, count))
+g + geom_col(fill = c(pal(7),pal(7))) + facet_wrap(.~countingMethod, scales = "free") + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
+  labs(title = "Crossing biggest impactful events types between maximum and total amount of casualties") + 
+  labs(y = "Number of casualties")
+```
+
+#### Results
 
 Same as the previous section, the above results show two different types of answer:  
  
-      1. One is dealing with the maximum number of dollars of damage on property and crops, "harmful" variable. In that sense, **flood** events are the most impactful with the biggest event doing 115 032 500 000$ of damage.  
+      1. One is dealing with the maximum number of dollars of damage on property and crops, "maxCasu" variable. In that sense, **flood** events are the most impactful with the biggest event doing 115 032 500 000$ of damage.  
       
       2. The other is dealing with the propotion of types of events with at least one casualty, "popHarmEvent" variable. This result is skewed since most of the bigger proportion variable values are related to few events types occurences. By consequence, "popHarmEvent" top 10 have few type of event observed. In that sense, the aggreagte **tornadoes, tstm wind, hail** is the most harmful event(s) with 1 602 500 000$ of damage.
+      
+            3. Last one is dealing with the total amount of economic damages through all occurred events in the database, "totalCasu" variable. In that sense, **flood** is again the most harmful with a total of 150 319 678 257$ of damage through 15 326 occurrences. It is interesting to note that 76% of this amount is due only to a single event, the one mentioned in point 1 above.
 
 Since the analysis is focused on the addition of property and crops damages, a deeper analysis could find more precision by doing the same process with distinction between the two variables. Other calculations could be made to define harmful casualties, like the total amount of casualties by events types or the related proportion.

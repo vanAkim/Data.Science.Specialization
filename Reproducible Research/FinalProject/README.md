@@ -1,16 +1,18 @@
 ---
-title: "Public health and economic casulaties due to severe meteoroligical events in the United States between 1950 and 2011"
+title: "Public health and economic casulaties due to meteoroligical events in the United States between 1950 and 2011"
 author: "Akim van Eersel"
-date: "2020-09-26"
+date: "2020-09-27"
 output: 
   html_document: 
     keep_md: yes
+    fig_width: 9
+    fig_height: 8
 editor_options: 
   chunk_output_type: console
 ---
 # Synopsis
 
-In this report we aim to describe most impactful population health consequences and economic damages casualties made by storms and other sever weather events in the United States between 1950 and 2011. From the U.S. National Oceanic and Atmospheric Administration's (NOAA) database we can access the storm data set in order to answer questions about severe weather events. Impactful casualty is defined here as the biggest amount of people touched or economic damages by a weather event. From these setup, for population health consequences it was one tornado with 1742 casualties which was the most harmful event. For economic damages it was one flood with 115 032 500 000$ of damage which was the most impactful event.
+In this report we aim to describe most impactful population health consequences and economic damages casualties made by storms and other weather events in the United States between 1950 and 2011. From the U.S. National Oceanic and Atmospheric Administration's (NOAA) database we can access the storm data set in order to answer questions about severe weather events. Impactful casualty is defined here as the biggest amount of people touched or economic damages by one weather event. From this setup, for population health consequences it was one tornado with 1742 casualties which was the most harmful event. For economic damages it was one flood with 115 032 500 000$ of damage in total which was the most impactful event. However, two other definitions are explored in this report and results are greatly distinct from previous. One is the proportion of types of weather events impacting population health or economy. The other is the total amount of casualties through all types of events occurred.
 
 # System info
 
@@ -57,7 +59,8 @@ list.files(getwd())
 
 ```
 ## [1] "data"               "FinalProject.Rproj" "README.html"       
-## [4] "README.md"          "README.Rmd"         "README_cache"
+## [4] "README.md"          "README.Rmd"         "README_cache"      
+## [7] "README_files"
 ```
 
 
@@ -85,7 +88,7 @@ dateDownloaded
 ```
 
 ```
-## [1] "Sat Sep 26 21:23:17 2020"
+## [1] "Sun Sep 27 22:18:43 2020"
 ```
 
 ```r
@@ -172,7 +175,7 @@ The present analysis address the following questions :
 * Question n°1 deals with "FATALITIES" and "INJURIES" variables to know population health harmful consequences related to each events.  
 * Answering the secondary question needs "PROPDMG" and "CROPDMG" variables along with theirs related decimal unit prefix stored in "PROPDMGEXP" and "CROPDMGEXP" variables. These two variables point to the economic amount casualties.
 
-## Results
+## Analysis
 
 ### Population health consequences
 
@@ -204,7 +207,7 @@ summary(health$Casualties)
 ```
 
 ```r
-# Proportion of harmless events :
+# Proportion of harmless events without types distinction :
 mean(health$Casualties == 0)
 ```
 
@@ -213,7 +216,7 @@ mean(health$Casualties == 0)
 ```
 
 ```r
-# Without harmless events :
+# Summary of harmful events without types distinction :
 summary(health$Casualties[health$Casualties != 0])
 ```
 
@@ -222,14 +225,15 @@ summary(health$Casualties[health$Casualties != 0])
 ##    1.000    1.000    2.000    7.099    4.000 1742.000
 ```
 
-Now, the data is grouped by types of events and 
+Now, the data is grouped by types of events and calculations made to get questioning results :
 
 ```r
 # Group by types of events
 byEvtype <- health %>% group_by(EVTYPE)
 
 # Aggregate by types of events with their related maximum number of casualties and proportion of events with at least one casualty
-summaryzero <- summarize(byEvtype, harmful = max(Casualties),
+summaryzero <- summarize(byEvtype, maxCasu = max(Casualties),
+                         totalCasu = sum(Casualties),
                          propHarmEvent = sum(Casualties != 0)/n(),
                          numEvent = n())
 ```
@@ -238,59 +242,116 @@ summaryzero <- summarize(byEvtype, harmful = max(Casualties),
 ## `summarise()` ungrouping output (override with `.groups` argument)
 ```
 
+Show top 10 of impactful events with the above processed data :
+
 ```r
-# Show the above result by descending order by :
-## 1. maximum number of casualties
-arrange(summaryzero[summaryzero$harmful !=0,], desc(harmful), desc(propHarmEvent))
+# Show the above result by descending order :
+## 1. maximum number of casualties made by one event for each types of events
+ansmax <- arrange(summaryzero[summaryzero$maxCasu !=0,],
+                  desc(maxCasu), desc(totalCasu))
+ansmax
 ```
 
 ```
-## # A tibble: 220 x 4
-##    EVTYPE            harmful propHarmEvent numEvent
-##    <chr>               <dbl>         <dbl>    <int>
-##  1 TORNADO              1742        0.131     60652
-##  2 ICE STORM            1569        0.0474     2006
-##  3 FLOOD                 802        0.0162    25326
-##  4 HURRICANE/TYPHOON     787        0.295        88
-##  5 HEAT                  583        0.272       767
-##  6 EXCESSIVE HEAT        521        0.404      1678
-##  7 BLIZZARD              390        0.0316     2719
-##  8 HEAT WAVE             202        0.405        74
-##  9 TROPICAL STORM        201        0.0609      690
-## 10 HEAVY SNOW            185        0.0120    15708
+## # A tibble: 220 x 5
+##    EVTYPE            maxCasu totalCasu propHarmEvent numEvent
+##    <chr>               <dbl>     <dbl>         <dbl>    <int>
+##  1 TORNADO              1742     96979        0.131     60652
+##  2 ICE STORM            1569      2064        0.0474     2006
+##  3 FLOOD                 802      7259        0.0162    25326
+##  4 HURRICANE/TYPHOON     787      1339        0.295        88
+##  5 HEAT                  583      3037        0.272       767
+##  6 EXCESSIVE HEAT        521      8428        0.404      1678
+##  7 BLIZZARD              390       906        0.0316     2719
+##  8 HEAT WAVE             202       481        0.405        74
+##  9 TROPICAL STORM        201       398        0.0609      690
+## 10 HEAVY SNOW            185      1148        0.0120    15708
 ## # ... with 210 more rows
 ```
 
 ```r
-## 2.proportion of types of events with at least one casualty
-arrange(summaryzero[summaryzero$harmful !=0,],
-        desc(propHarmEvent), desc(harmful))
+## 2. proportion of types of events with at least one casualty
+ansprop <- arrange(summaryzero[summaryzero$propHarmEvent !=0,],
+                  desc(propHarmEvent), desc(maxCasu))
+ansprop
 ```
 
 ```
-## # A tibble: 220 x 4
-##    EVTYPE                     harmful propHarmEvent numEvent
-##    <chr>                        <dbl>         <dbl>    <int>
-##  1 Heat Wave                       70             1        1
-##  2 TROPICAL STORM GORDON           51             1        1
-##  3 SNOW/HIGH WINDS                 34             1        2
-##  4 THUNDERSTORMW                   27             1        1
-##  5 TORNADOES, TSTM WIND, HAIL      25             1        1
-##  6 HIGH WIND AND SEAS              23             1        1
-##  7 HEAT WAVE DROUGHT               19             1        1
-##  8 WINTER STORM HIGH WINDS         16             1        1
-##  9 GLAZE/ICE STORM                 15             1        1
-## 10 COLD AND SNOW                   14             1        1
+## # A tibble: 220 x 5
+##    EVTYPE                     maxCasu totalCasu propHarmEvent numEvent
+##    <chr>                        <dbl>     <dbl>         <dbl>    <int>
+##  1 Heat Wave                       70        70             1        1
+##  2 TROPICAL STORM GORDON           51        51             1        1
+##  3 SNOW/HIGH WINDS                 34        36             1        2
+##  4 THUNDERSTORMW                   27        27             1        1
+##  5 TORNADOES, TSTM WIND, HAIL      25        25             1        1
+##  6 HIGH WIND AND SEAS              23        23             1        1
+##  7 HEAT WAVE DROUGHT               19        19             1        1
+##  8 WINTER STORM HIGH WINDS         16        16             1        1
+##  9 GLAZE/ICE STORM                 15        15             1        1
+## 10 COLD AND SNOW                   14        14             1        1
 ## # ... with 210 more rows
 ```
 
-#### Conclusion
+```r
+## 3. total amount casualties for each types of events
+anstot <- arrange(summaryzero[summaryzero$totalCasu !=0,],
+                   desc(totalCasu), desc(maxCasu))
+anstot
+```
 
-The above results show two different types of answer:  
+```
+## # A tibble: 220 x 5
+##    EVTYPE            maxCasu totalCasu propHarmEvent numEvent
+##    <chr>               <dbl>     <dbl>         <dbl>    <int>
+##  1 TORNADO              1742     96979       0.131      60652
+##  2 EXCESSIVE HEAT        521      8428       0.404       1678
+##  3 TSTM WIND              60      7461       0.0133    219940
+##  4 FLOOD                 802      7259       0.0162     25326
+##  5 LIGHTNING              51      6046       0.210      15754
+##  6 HEAT                  583      3037       0.272        767
+##  7 FLASH FLOOD           159      2755       0.0172     54277
+##  8 ICE STORM            1569      2064       0.0474      2006
+##  9 THUNDERSTORM WIND      70      1621       0.00826    82563
+## 10 WINTER STORM          170      1527       0.0199     11433
+## # ... with 210 more rows
+```
+
+Since most of 10th impactful types of events are present both in summary tables of maximum and total number of casualties, let's compare the two variables with the intersecting data.  
+For better comparison, a plot is made :
+
+```r
+library(tidyr)
+library(ggplot2)
+library(RColorBrewer)
+
+# Make tidy data set to make easier plotting :
+interdata <- ansmax[1:10, c("EVTYPE", "maxCasu", "totalCasu")][ansmax$EVTYPE[1:10] %in% anstot$EVTYPE[1:10],]
+colnames(interdata) <- c("TypesOfEvents", "Maximum number of casualties for one event", "Total number of casualties through all observed types of events")
+tidyInterdata <- gather(interdata, key = countingMethod, value = count, -TypesOfEvents)
+
+# Plot :
+pal <- colorRampPalette(brewer.pal(3,"Set2"))
+
+g <- ggplot(tidyInterdata, aes(TypesOfEvents, count))
+g + geom_col(fill = c(pal(5),pal(5))) + facet_wrap(.~countingMethod, scales = "free") + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(title = "Crossing biggest impactful events types between maximum and total amount of casualties") + 
+  labs(y = "Number of casualties")
+```
+
+![](README_files/figure-html/health.tidyPlot-1.png)<!-- -->
+
+
+#### Results
+
+The above results show different types of answer:  
  
-      1. One is dealing with the maximum number of casualties, "harmful" variable. In that sense, **tornado** events are the most harmful with the biggest event doing 1742 casualties.  
+      1. One is dealing with the maximum number of casualties, "maxCasu" variable. In that sense, one **tornado** event is the most harmful with the biggest event doing 1742 casualties.  
       
-      2. The other is dealing with the propotion of types of events with at least one casualty, "popHarmEvent" variable. This result is skewed since most of the bigger proportion variable values are related to few events types occurences. By consequence, "popHarmEvent" top 10 have just one type of event observed. In that sense, **heat wave** is the most harmful event with 70 casualties.
+      2. The second is dealing with the propotion of types of events with at least one casualty, "popHarmEvent" variable. This result is skewed since most of the bigger proportion variable values are related to few events types occurences. By consequence, "popHarmEvent" top 10 have just one of each type of event observed. In that sense, **heat wave** is the most harmful event with 70 casualties in only one apparition in the data base. Also, the data labels could be miss leading since **heat wave drought** is another type of event and can be found in the same "popHarmEvent" top 10 results, on position 7 with 19 casualties. If needed, clustering labels could avoid to many distinction between similar labels. 
+      
+      3. Last one is dealing with the total amount of casualties through all occurred events in the database, "totalCasu" variable. In that sense, **tornado** is again the most harmful with a total of 96 979 casualties through 60 652 occurrences.  
 
 Since the analysis is focused on the addition of injuries and fatalities, a deeper analysis could find more precision by doing the same process with distinction between casualties. Other calculations could be made to define harmful casualties, like the total amount of casualties by events types or the related proportion.
 
@@ -397,7 +458,8 @@ Now, the data is grouped by types of events and
 byEvtype <- econ %>% group_by(EVTYPE)
 
 # Aggregate by types of events with their related maximum number of casualties and proportion of events with at least one casualty
-summaryzero <- summarize(byEvtype, harmful = max(Casualties),
+summaryzero <- summarize(byEvtype, maxCasu = max(Casualties),
+                         totalCasu = sum(Casualties),
                          propHarmEvent = sum(Casualties != 0)/n(),
                          numEvent = n())
 ```
@@ -406,58 +468,114 @@ summaryzero <- summarize(byEvtype, harmful = max(Casualties),
 ## `summarise()` ungrouping output (override with `.groups` argument)
 ```
 
+Show top 10 of impactful events with the above processed data :
+
 ```r
-# Show the above result by descending order by :
-## 1. maximum number of casualties
-arrange(summaryzero[summaryzero$harmful !=0,], desc(harmful), desc(propHarmEvent))
+# Show the above result by descending order :
+## 1. maximum number of casualties made by one event for each types of events
+ansmax <- arrange(summaryzero[summaryzero$maxCasu !=0,],
+                  desc(maxCasu), desc(totalCasu))
+ansmax
 ```
 
 ```
-## # A tibble: 428 x 4
-##    EVTYPE                 harmful propHarmEvent numEvent
-##    <chr>                    <dbl>         <dbl>    <int>
-##  1 FLOOD             115032500000         0.397    25326
-##  2 STORM SURGE        31300000000         0.663      261
-##  3 HURRICANE/TYPHOON  16930000000         0.795       88
-##  4 RIVER FLOOD        10000000000         0.613      173
-##  5 TROPICAL STORM      5150000000         0.590      690
-##  6 ICE STORM           5000500000         0.333     2006
-##  7 WINTER STORM        5000000000         0.121    11433
-##  8 STORM SURGE/TIDE    4000000000         0.318      148
-##  9 HURRICANE           3500000000         0.707      174
-## 10 TORNADO             2800000000         0.649    60652
+## # A tibble: 428 x 5
+##    EVTYPE                 maxCasu     totalCasu propHarmEvent numEvent
+##    <chr>                    <dbl>         <dbl>         <dbl>    <int>
+##  1 FLOOD             115032500000 150319678257          0.397    25326
+##  2 STORM SURGE        31300000000  43323541000          0.663      261
+##  3 HURRICANE/TYPHOON  16930000000  71913712800          0.795       88
+##  4 RIVER FLOOD        10000000000  10148404500          0.613      173
+##  5 TROPICAL STORM      5150000000   8382236550          0.590      690
+##  6 ICE STORM           5000500000   8967041360          0.333     2006
+##  7 WINTER STORM        5000000000   6715441251          0.121    11433
+##  8 STORM SURGE/TIDE    4000000000   4642038000          0.318      148
+##  9 HURRICANE           3500000000  14610229010          0.707      174
+## 10 TORNADO             2800000000  57352114398.         0.649    60652
 ## # ... with 418 more rows
 ```
 
 ```r
-## 2.proportion of types of events with at least one casualty
-arrange(summaryzero[summaryzero$harmful !=0,],
-        desc(propHarmEvent), desc(harmful))
+## 2. proportion of types of events with at least one casualty
+ansprop <- arrange(summaryzero[summaryzero$propHarmEvent !=0,],
+                  desc(propHarmEvent), desc(maxCasu))
+ansprop
 ```
 
 ```
-## # A tibble: 428 x 4
-##    EVTYPE                        harmful propHarmEvent numEvent
-##    <chr>                           <dbl>         <dbl>    <int>
-##  1 TORNADOES, TSTM WIND, HAIL 1602500000             1        1
-##  2 WILD FIRES                  619000000             1        4
-##  3 HAILSTORM                   220000000             1        3
-##  4 EXCESSIVE WETNESS           142000000             1        1
-##  5 HURRICANE OPAL/HIGH WINDS   110000000             1        1
-##  6 River Flooding              105580000             1        5
-##  7 COLD AND WET CONDITIONS      66000000             1        1
-##  8 WINTER STORM HIGH WINDS      65000000             1        1
-##  9 HIGH WINDS/COLD              55000000             1        5
-## 10 HURRICANE EMILY              50000000             1        1
+## # A tibble: 428 x 5
+##    EVTYPE                        maxCasu  totalCasu propHarmEvent numEvent
+##    <chr>                           <dbl>      <dbl>         <dbl>    <int>
+##  1 TORNADOES, TSTM WIND, HAIL 1602500000 1602500000             1        1
+##  2 WILD FIRES                  619000000  624100000             1        4
+##  3 HAILSTORM                   220000000  241000000             1        3
+##  4 EXCESSIVE WETNESS           142000000  142000000             1        1
+##  5 HURRICANE OPAL/HIGH WINDS   110000000  110000000             1        1
+##  6 River Flooding              105580000  134175000             1        5
+##  7 COLD AND WET CONDITIONS      66000000   66000000             1        1
+##  8 WINTER STORM HIGH WINDS      65000000   65000000             1        1
+##  9 HIGH WINDS/COLD              55000000  117500000             1        5
+## 10 HURRICANE EMILY              50000000   50000000             1        1
 ## # ... with 418 more rows
 ```
 
-#### Conclusion
+```r
+## 3. total amount casualties for each types of events
+anstot <- arrange(summaryzero[summaryzero$totalCasu !=0,],
+                   desc(totalCasu), desc(maxCasu))
+anstot
+```
+
+```
+## # A tibble: 428 x 5
+##    EVTYPE                 maxCasu     totalCasu propHarmEvent numEvent
+##    <chr>                    <dbl>         <dbl>         <dbl>    <int>
+##  1 FLOOD             115032500000 150319678257         0.397     25326
+##  2 HURRICANE/TYPHOON  16930000000  71913712800         0.795        88
+##  3 TORNADO             2800000000  57352114398.        0.649     60652
+##  4 STORM SURGE        31300000000  43323541000         0.663       261
+##  5 HAIL                1800000000  18758221636.        0.0900   288661
+##  6 FLASH FLOOD         1000000000  17562129655.        0.381     54277
+##  7 DROUGHT             1000000000  15018672000         0.107      2488
+##  8 HURRICANE           3500000000  14610229010         0.707       174
+##  9 RIVER FLOOD        10000000000  10148404500         0.613       173
+## 10 ICE STORM           5000500000   8967041360         0.333      2006
+## # ... with 418 more rows
+```
+
+Since most of 10th impactful types of events are present both in summary tables of maximum and total number of casualties, let's compare the two variables with the intersecting data.  
+For better comparison, a plot is made :
+
+```r
+library(tidyr)
+library(ggplot2)
+library(RColorBrewer)
+
+# Make tidy data set to make easier plotting :
+interdata <- ansmax[1:10, c("EVTYPE", "maxCasu", "totalCasu")][ansmax$EVTYPE[1:10] %in% anstot$EVTYPE[1:10],]
+colnames(interdata) <- c("TypesOfEvents", "Maximum number of casualties for one event", "Total number of casualties through all observed types of events")
+tidyInterdata <- gather(interdata, key = countingMethod, value = count, -TypesOfEvents)
+
+# Plot :
+pal <- colorRampPalette(brewer.pal(3,"Set2"))
+
+g <- ggplot(tidyInterdata, aes(TypesOfEvents, count))
+g + geom_col(fill = c(pal(7),pal(7))) + facet_wrap(.~countingMethod, scales = "free") + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
+  labs(title = "Crossing biggest impactful events types between maximum and total amount of casualties") + 
+  labs(y = "Number of casualties")
+```
+
+![](README_files/figure-html/econ.tidyPlot-1.png)<!-- -->
+
+#### Results
 
 Same as the previous section, the above results show two different types of answer:  
  
-      1. One is dealing with the maximum number of dollars of damage on property and crops, "harmful" variable. In that sense, **flood** events are the most impactful with the biggest event doing 115 032 500 000$ of damage.  
+      1. One is dealing with the maximum number of dollars of damage on property and crops, "maxCasu" variable. In that sense, **flood** events are the most impactful with the biggest event doing 115 032 500 000$ of damage.  
       
       2. The other is dealing with the propotion of types of events with at least one casualty, "popHarmEvent" variable. This result is skewed since most of the bigger proportion variable values are related to few events types occurences. By consequence, "popHarmEvent" top 10 have few type of event observed. In that sense, the aggreagte **tornadoes, tstm wind, hail** is the most harmful event(s) with 1 602 500 000$ of damage.
+      
+            3. Last one is dealing with the total amount of economic damages through all occurred events in the database, "totalCasu" variable. In that sense, **flood** is again the most harmful with a total of 150 319 678 257$ of damage through 15 326 occurrences. It is interesting to note that 76% of this amount is due only to a single event, the one mentioned in point 1 above.
 
 Since the analysis is focused on the addition of property and crops damages, a deeper analysis could find more precision by doing the same process with distinction between the two variables. Other calculations could be made to define harmful casualties, like the total amount of casualties by events types or the related proportion.
