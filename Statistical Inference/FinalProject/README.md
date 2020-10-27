@@ -23,7 +23,8 @@ Without understanding the CLT, it could be surprising to see a sampling sum dist
 
 ### Initialize simulation parameters
 
-```{r init.para}
+
+```r
 lambda <- 0.2
 nsamp <- 40
 nsimu <- 1000
@@ -32,7 +33,8 @@ nsimu <- 1000
 ### Initial distributions
 
 In order to explicitly show the left-skewed exponential distribution, 1000 samples of exponential distribution function are shown below.
-```{r exp.dis, message=FALSE}
+
+```r
 library(ggplot2)
 
 # Get 1000 random values of the exponential distribution
@@ -44,12 +46,14 @@ qplot(exp.sim,
       xlab = "x", ylab = "Count")
 ```
 
+![](README_files/figure-html/exp.dis-1.png)<!-- -->
+
 
 ## Sample mean vs Theoretical mean
 
 Let's compare the theoretical mean and the mean of the 1000 samples distribution from the mean of 40 exponential distribution values.
-```{r mean.calculations}
 
+```r
 # Set random numbers generation reproducible
 set.seed(126)
 
@@ -64,12 +68,17 @@ print(data.frame(Theorical.mean = mean.theo, Sample.mean = mean(mean.simu),
                  Sample.median = median(mean.simu), Sample.standard.deviation = sd(mean.simu)))
 ```
 
+```
+##   Theorical.mean Sample.mean Sample.median Sample.standard.deviation
+## 1              5     5.00425       4.95466                 0.7662711
+```
+
 The two values are extremely close. It was expected regarding the CLT, since the mean is an unbiased statistic. Let's investigate more on the samples distribution.
 
 ### Distribution
 
-```{r mean.dist, message=FALSE}
 
+```r
 # Make a histogram of the distribution values and add vertical lines
 qplot(mean.simu,
       main = "Means sampling distribution of the exponential distribution",
@@ -78,6 +87,8 @@ geom_vline(xintercept = 5, lwd = 1.5, col = '#0A6B37') +
 geom_vline(xintercept = mean(mean.simu), lwd = 1, lty =2, col = '#EEE8A2') +
 geom_vline(xintercept = median(mean.simu), lwd = 1, lty =3, col = '#74A5F5')  
 ```
+
+![](README_files/figure-html/mean.dist-1.png)<!-- -->
 
 Above stands the distribution plot of the sampled means. Three vertical lines were added :  
 1. One filled in green intercepting the true value of the exponential distribution mean, 5.  
@@ -94,8 +105,8 @@ All these insights on the means sampling distribution as a normal distribution m
 
 Let's compare the theoretical variance and the mean of the 1000 samples distribution from the variance of 40 exponential distribution values.  
 Taking the average of the samples variance is relevant only if the distribution follows the CLT and approximates a normal distribution.
-```{r var.calculations}
 
+```r
 # Set random numbers generation reproducible
 set.seed(126)
 
@@ -110,12 +121,17 @@ print(data.frame(Theorical.variance = var.theo, Sample.variance = mean(var.simu)
                  Sample.median = median(var.simu)))
 ```
 
+```
+##   Theorical.variance Sample.variance Sample.median
+## 1                 25        24.83586       22.8235
+```
+
 The two values are very close. It was also expected regarding the CLT. Let's investigate more on the samples distribution.
 
 ### Distribution
 
-```{r var.dist, message=FALSE}
 
+```r
 # Make a histogram of the distribution values and add vertical lines
 qplot(var.simu,
       main = "Variance sampling distribution of the exponential distribution",
@@ -124,6 +140,8 @@ geom_vline(xintercept = 25, lwd = 1.5, col = '#0A6B37') +
 geom_vline(xintercept = mean(var.simu), lwd = 1, lty =2, col = '#EEE8A2') +
 geom_vline(xintercept = median(var.simu), lwd = 1, lty =3, col = '#74A5F5')
 ```
+
+![](README_files/figure-html/var.dist-1.png)<!-- -->
 
 As previously, above stands the distribution plot of the sampled variance. Three vertical lines were added :  
 1. One filled in green intercepting the true value of the exponential distribution variance, 25 (standard deviation squared : 1/lambda²).  
@@ -142,7 +160,8 @@ The data set 'ToothGrowth' is aiming to study the effect of vitamin C on tooth g
 
 ## Load the data
 
-```{r load}
+
+```r
 library(datasets)
 
 # Load the data
@@ -159,34 +178,75 @@ colnames(tooth) <- c('len', 'delivery.method', 'dose')
 ## Statistics summary
 
 Get the dimensions of the data set and by features.
-```{r dim}
+
+```r
 # Number of rows and columns
 dim(tooth)
+```
 
+```
+## [1] 60  3
+```
+
+```r
 # Number of observations for the "dose" and "delivery.method" variables
 table(tooth$dose, tooth$delivery.method)
 ```
 
+```
+##      
+##       orange juice ascorbic acid
+##   0.5           10            10
+##   1             10            10
+##   2             10            10
+```
+
 Let's see the 5 first rows of the data set.
-```{r head}
+
+```r
 head(tooth)
 ```
 
+```
+##    len delivery.method dose
+## 1  4.2   ascorbic acid  0.5
+## 2 11.5   ascorbic acid  0.5
+## 3  7.3   ascorbic acid  0.5
+## 4  5.8   ascorbic acid  0.5
+## 5  6.4   ascorbic acid  0.5
+## 6 10.0   ascorbic acid  0.5
+```
+
 Overall statistics on the length of the tooth growth.
-```{r fivenum}
+
+```r
 # Tukey's five number summary + mean & std
 data.frame(Statistic = c('Min', '25th percentile','Median', '75th percentile', 'Max', 'Mean', 'Standard Deviation'),
   Values = c(fivenum(tooth$len), mean(tooth$len), sd(tooth$len)))
 ```
 
+```
+##            Statistic    Values
+## 1                Min  4.200000
+## 2    25th percentile 12.550000
+## 3             Median 19.250000
+## 4    75th percentile 25.350000
+## 5                Max 33.900000
+## 6               Mean 18.813333
+## 7 Standard Deviation  7.649315
+```
+
 Now, let's see the length of tooth growth discriminated by other variable in a plot.
-```{r plot, message=FALSE}
+
+```r
 ggplot(data = tooth, aes(dose, len, color = delivery.method), ) +
       geom_point(size = 3, alpha = 1/2) + 
       geom_smooth(method = "lm", alpha =1/2, show.legend = F)  +
       labs(title = "Tooth growth length by dose and by vitamin C delivery method",
            x = "Dose levels (mg/day)", y = "Tooth growth length")
 ```
+
+![](README_files/figure-html/plot-1.png)<!-- -->
 
 The plot is showing all data points and a linear regression of the length function of the dose levels for each vitamin C delivery method.
 
@@ -205,12 +265,26 @@ In order to reduce the amount of calculations, we'll only focus on dose levels 0
 we assume the normality of the distribution of length variable on both dose levels, also as the independence between subjects. Similar variation is observed between the two groups.   
 A t-test will be conducted.
 
-```{r dose.hyp}
 
+```r
 g2 <- tooth$len[tooth$dose == 2] 
 g1 <- tooth$len[tooth$dose == 0.5]
 
 t.test(g2-g1, var.equal = TRUE, alternative = "greater")
+```
+
+```
+## 
+## 	One Sample t-test
+## 
+## data:  g2 - g1
+## t = 11.291, df = 19, p-value = 3.595e-10
+## alternative hypothesis: true mean is greater than 0
+## 95 percent confidence interval:
+##  13.12216      Inf
+## sample estimates:
+## mean of x 
+##    15.495
 ```
 
 Even if t-test's results explicitly state that the null hypothesis is rejected, the related p-value less than 0.01 and the 95% confidence interval of the means difference not including 0 confirm H0 rejection.  
@@ -226,12 +300,26 @@ In order to reduce the amount of calculations, we'll only focus on dose level 1.
 we assume the normality of the distribution of length variable on both dose levels, also as the independence between subjects. Similar variation is observed between the two groups.   
 A t-test will be conducted.
 
-```{r delivery.hyp}
 
+```r
 g2 <- tooth$len[tooth$dose == 1 & tooth$delivery.method == "orange juice"] 
 g1 <- tooth$len[tooth$dose == 1 & tooth$delivery.method == "ascorbic acid"]
 
 t.test(g2-g1, var.equal = TRUE, alternative = "greater")
+```
+
+```
+## 
+## 	One Sample t-test
+## 
+## data:  g2 - g1
+## t = 3.3721, df = 9, p-value = 0.004115
+## alternative hypothesis: true mean is greater than 0
+## 95 percent confidence interval:
+##  2.706401      Inf
+## sample estimates:
+## mean of x 
+##      5.93
 ```
 
 Again, even if t-test's results explicitly state that the null hypothesis is rejected, the related p-value less than 0.01 and the 95% confidence interval of the means difference not including 0 confirm H0 rejection.  
