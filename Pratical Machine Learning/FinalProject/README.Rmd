@@ -1,0 +1,14 @@
+---
+title: "Untitled"
+author: "Akim van Eersel"
+date: "2020-11-12"
+output: github_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Synopsis
