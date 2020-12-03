@@ -16,7 +16,8 @@ knitr::opts_chunk$set(echo = FALSE)
 ## Intoduction
 
 This README file is an R Markdown presentation introducing the application made with the Shiny framework and hosted on Shiny servers: [__Toulouse Map__](https://vanakim.shinyapps.io/ToulouseMap/).  
-_To see the present file in presentation view use the following link hosting it on RPubs : [Shiny App presentation](http://rpubs.com/vanAkim/ToulouseMapApp)._
+_To see the present file in presentation view use the following link hosting it on RPubs : [Shiny App presentation](http://rpubs.com/vanAkim/ToulouseMapApp)._  
+_All codes files (presentation markdown + shiny R codes) are available on my [Github page](https://github.com/vanAkim/DataScienceSpecialization-JohnsHopkins/tree/master/Data%20Products/FinalProject)._
 
 In France, there is some confusion about postal codes as there are different databases with certain exclusive postal codes. This can be problematic in the search for address or geographical location. 
 

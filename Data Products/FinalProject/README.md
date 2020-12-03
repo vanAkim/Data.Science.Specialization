@@ -14,7 +14,8 @@ editor_options:
 ## Intoduction
 
 This README file is an R Markdown presentation introducing the application made with the Shiny framework and hosted on Shiny servers: [__Toulouse Map__](https://vanakim.shinyapps.io/ToulouseMap/).  
-_To see the present file in presentation view use the following link hosting it on RPubs : [Shiny App presentation](http://rpubs.com/vanAkim/ToulouseMapApp)._
+_To see the present file in presentation view use the following link hosting it on RPubs : [Shiny App presentation](http://rpubs.com/vanAkim/ToulouseMapApp)._  
+_All codes files (presentation markdown + shiny R codes) are available on my [Github page](https://github.com/vanAkim/DataScienceSpecialization-JohnsHopkins/tree/master/Data%20Products/FinalProject)._
 
 In France, there is some confusion about postal codes as there are different databases with certain exclusive postal codes. This can be problematic in the search for address or geographical location. 
 
@@ -82,6 +83,6 @@ leaflet() %>% setView(lat = 43.6016, lng = 1.4407, 11) %>%
       addProviderTiles(providers$CartoDB.Positron)
 ```
 
-<!--html_preserve--><div id="htmlwidget-6d83e1001788478bf90e" style="width:720px;height:432px;" class="leaflet html-widget"></div>
-<script type="application/json" data-for="htmlwidget-6d83e1001788478bf90e">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"setView":[[43.6016,1.4407],11,[]],"calls":[{"method":"addProviderTiles","args":["CartoDB.Positron",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]}]},"evals":[],"jsHooks":[]}</script><!--/html_preserve-->
+<!--html_preserve--><div id="htmlwidget-ae54b616c6d8a4c93e40" style="width:720px;height:432px;" class="leaflet html-widget"></div>
+<script type="application/json" data-for="htmlwidget-ae54b616c6d8a4c93e40">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"setView":[[43.6016,1.4407],11,[]],"calls":[{"method":"addProviderTiles","args":["CartoDB.Positron",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]}]},"evals":[],"jsHooks":[]}</script><!--/html_preserve-->
 
