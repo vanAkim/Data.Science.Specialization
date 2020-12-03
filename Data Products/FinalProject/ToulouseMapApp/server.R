@@ -80,9 +80,21 @@ server <- function(input, output, session) {
     
     output$map <- renderLeaflet({
         ## Base map without changing elements
-        leaflet(filteredData) %>% setView(lat = lat_tls, lng = lng_tls, 11) %>% 
-            addProviderTiles(providers$CartoDB.Positron)
-            
+        leaflet(tlsPostal) %>% setView(lat = lat_tls, lng = lng_tls, 11) %>% 
+            addProviderTiles(providers$CartoDB.Positron) %>%
+            addPolygons(fillOpacity = 0.4, fillColor = '#96D3FF',
+                        color = 'white', opacity = 0.7, dashArray = "5", weight = 3,
+                        highlight = highlightOptions(
+                            weight = 5,
+                            color = "#666",
+                            dashArray = "",
+                            fillOpacity = 0.7,
+                            bringToFront = TRUE),
+                        label = postal_labels,
+                        labelOptions = labelOptions(
+                            style = list("font-weight" = "normal", padding = "3px 8px"),
+                            textsize = "15px",
+                            direction = "auto"))
     })
     
     #----------------------------------------------
