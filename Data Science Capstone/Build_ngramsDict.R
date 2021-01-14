@@ -239,7 +239,7 @@ write_csv(x = trn_sumdfm_top3, file = "./data/dict_top3_minfreq2_234grams.csv")
 
 ## Get less ngrams with minfreq = 3 (instead of previous 2)
 
-# trn_sumdfm_top3 <- fread(file = "./data/final-pruned-dict_234.csv")
+# trn_sumdfm_top3 <- fread(file = "./data/dict_top3_minfreq2_234grams.csv")
 trn_sumdfm_top3_freq3 <- trn_sumdfm_top3 %>% filter(frequency > 2)
 
 write_csv(x = trn_sumdfm_top3_freq3, file = "./data/dict_top3_minfreq3_234grams.csv")

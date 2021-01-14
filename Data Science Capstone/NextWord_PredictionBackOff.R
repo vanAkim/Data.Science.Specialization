@@ -6,7 +6,7 @@
 # ngrams_dict <- fread(file = "./data/dict_top3_minfreq2_234grams.csv")
 ngrams_dict <- fread(file = "./data/dict_top3_minfreq3_234grams.csv")
 
-setkeyv(ngrams_dict, c("num_gram", "last_wrt", "pred_word", "frequency"))
+setkeyv(ngrams_dict, c("num_gram", "last_wrt", "word_n1", "word_n2"))
 
 ## Prediction function
 predict_nextword <- function(sentence){
@@ -81,4 +81,18 @@ predict_nextword <- function(sentence){
 
 #----
 ## Call the prediction function to get top 3 words
-predict_nextword("When you were in Holland you were like 1 inch away from me but you hadn't time to take a")
+predict_nextword("May the force")
+
+
+# Overall top-3 score:     18.53 %
+# Overall top-1 precision: 14.01 %
+# Overall top-3 precision: 22.57 %
+# Average runtime:         10.03 msec
+# Number of predictions:   28464
+# Total memory used:       373.64 MB
+# 
+# Dataset details
+# Dataset "blogs" (599 lines, 14587 words, hash 14b3c593e543eb8b2932cf00b646ed653e336897a03c82098b725e6e1f9b7aa2)
+# Score: 18.42 %, Top-1 precision: 13.75 %, Top-3 precision: 22.69 %
+# Dataset "tweets" (793 lines, 14071 words, hash 7fa3bf921c393fe7009bc60971b2bb8396414e7602bb4f409bed78c7192c30f4)
+# Score: 18.65 %, Top-1 precision: 14.28 %, Top-3 precision: 22.45 %
