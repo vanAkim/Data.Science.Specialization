@@ -222,7 +222,7 @@ split_grams(trn_sumdfm, 2)
 split_grams(trn_sumdfm, 3)
 split_grams(trn_sumdfm, 4)
 
-write_csv(x = trn_sumdfm, file = "./data/building-dict/final-dict_234.csv")
+write_csv(x = trn_sumdfm, file = "./data/building-dict/dict_minfreq2_234grams.csv")
 
 
 #----
@@ -234,4 +234,13 @@ trn_sumdfm_top3 <- trn_sumdfm[,tail(.SD,3),
                               by=c("num_gram", "last_wrt", "word_n1", "word_n2")]
 
 
-write_csv(x = trn_sumdfm_top3, file = "./data/final-pruned-dict_234.csv")
+write_csv(x = trn_sumdfm_top3, file = "./data/dict_top3_minfreq2_234grams.csv")
+
+
+## Get less ngrams with minfreq = 3 (instead of previous 2)
+
+# trn_sumdfm_top3 <- fread(file = "./data/final-pruned-dict_234.csv")
+trn_sumdfm_top3_freq3 <- trn_sumdfm_top3 %>% filter(frequency > 2)
+
+write_csv(x = trn_sumdfm_top3_freq3, file = "./data/dict_top3_minfreq3_234grams.csv")
+# saveRDS(trn_sumdfm_top3_freq3, "./data/dict_top3_minfreq3_234grams.rds")

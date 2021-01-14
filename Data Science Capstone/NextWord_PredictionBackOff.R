@@ -1,6 +1,13 @@
 #===============================================================================
 ## NEXT WORD PREDICTION
 
+#----
+## Load ngrams dict
+# ngrams_dict <- fread(file = "./data/dict_top3_minfreq2_234grams.csv")
+ngrams_dict <- fread(file = "./data/dict_top3_minfreq3_234grams.csv")
+
+setkeyv(ngrams_dict, c("num_gram", "last_wrt", "pred_word", "frequency"))
+
 ## Prediction function
 predict_nextword <- function(sentence){
       
@@ -8,12 +15,6 @@ predict_nextword <- function(sentence){
       require(dplyr)
       require(stringr)
       require(data.table)
-      
-      #----
-      ## Load ngrams dict
-      ngrams_dict <- fread(file = "./data/final-pruned-dict_234.csv")
-      
-      setkeyv(ngrams_dict, c( "num_gram", "last_wrt", "word_n1", "word_n2"))
       
       
       #====
@@ -58,7 +59,7 @@ predict_nextword <- function(sentence){
       result <- result[!filt,]
       
       #----
-      if(is.null(result)){
+      if(is.null(result) || dim(result)[1] == 0){
             result <- ngrams_dict[.(2),
                                   .(num_gram, feature, frequency, pred_word)] %>%
                   setkeyv(c("frequency", "pred_word"))
@@ -80,4 +81,4 @@ predict_nextword <- function(sentence){
 
 #----
 ## Call the prediction function to get top 3 words
-predict_nextword("You shall not")
+predict_nextword("When you were in Holland you were like 1 inch away from me but you hadn't time to take a")
