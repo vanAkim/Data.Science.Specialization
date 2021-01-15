@@ -1,0 +1,10 @@
+name: Publish Document
+title:
+username:
+account: rpubs
+server: rpubs.com
+hostUrl: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/699509/53e14ecb679e487781d374e0f3a3b1ea
+bundleId: https://api.rpubs.com/api/v1/document/699509/53e14ecb679e487781d374e0f3a3b1ea
+url: http://rpubs.com/vanAkim/699509
+when: 1607025909.64813

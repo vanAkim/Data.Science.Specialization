@@ -1,0 +1,12 @@
+name: ToulouseMap
+title: ToulouseMap
+username:
+account: vanakim
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3346640
+bundleId: 3939132
+url: https://vanakim.shinyapps.io/ToulouseMap/
+when: 1607017483.74075
+asMultiple: FALSE
+asStatic: FALSE

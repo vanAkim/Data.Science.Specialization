@@ -1,25 +1,23 @@
----
-title: "EDA: text mining on blogposts, news and tweets corpora"
-author: "Akim van Eersel"
-date: "2020-12-23"
-output: 
-  ioslides_presentation: 
-    smaller: yes
-    fig_width: 8.5
-    fig_height: 5.5
-editor_options: 
-  chunk_output_type: console
----
+EDA: text mining on blogposts, news and tweets corpora
+========================================================
+author: Akim van Eersel
+date: 2020-12-23
+autosize: true
 
-```{r read.files, message=FALSE, cache=FALSE, include=FALSE}
-library(readr)
-twitdata <- read_lines("./data/final/en_US/en_US.twitter.txt")
-blogdata <- read_lines("./data/final/en_US/en_US.blogs.txt")
-newsdata <- read_lines("./data/final/en_US/en_US.news.txt")
+```{r opt.chunks, include=FALSE}
+knitr::opts_chunk$set(fig.align='center', out.width='90%', fig.asp=.75, dpi=600)
 ```
 
 
-```{r ntok, message=FALSE, warning=FALSE, include=FALSE, cache = TRUE}
+```{r read.files, message=FALSE, cache=TRUE, include=FALSE}
+library(readr)
+twitdata <- read_lines("../data/final/en_US/en_US.twitter.txt")
+blogdata <- read_lines("../data/final/en_US/en_US.blogs.txt")
+newsdata <- read_lines("../data/final/en_US/en_US.news.txt")
+```
+
+
+```{r ntok, message=FALSE, warning=FALSE, cache=FALSE, include=FALSE}
 library(dplyr)
 library(quanteda)
 library(tokenizers)
@@ -48,7 +46,9 @@ ntok_all <- rbind(ntok_texts, ntok_tokens)
 ntok_all$pre <- rep(c("Raw texts", "Stop words removed"), each = length(ntok_texts$numtok))
 ```
 
-## Introduction
+
+Introduction
+========================================================
 
 Presentation made for the second step of the seven for the Data Science Capstone project from Johns Hopkins University Specialization on Coursera.
 
@@ -59,7 +59,9 @@ This report is a quick text mining exploratory data analysis of 3 different text
 
 First let's see the distribution of all words among the 3 sources for each document.
 
-## Number of words: histograms
+
+Number of words: histograms
+========================================================
 
 ```{r ntok.hist, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE}
 library(ggplot2)
@@ -75,9 +77,11 @@ ggplot(ntok_all, aes(numtok, fill=..x..)) +
 
 ```
 
-## Number of words: boxplots
 
-```{r ntok.boxplot, echo=FALSE, message=FALSE, warning=FALSE}
+Number of words: boxplots
+========================================================
+
+```{r ntok.boxplot, echo=FALSE, message=FALSE, warning=FALSE, cache = TRUE}
 # Boxplots: partition overview
 ggplot(ntok_all, aes(x=type, y=numtok, fill = pre)) + 
       geom_boxplot(color="#243847", alpha =0.8) +
@@ -85,12 +89,12 @@ ggplot(ntok_all, aes(x=type, y=numtok, fill = pre)) +
       labs(x ="", y="Number of words per text (log scale)")
 ```
 
-## Number of words: conclusion
 
-### Five numbers summaries
+Number of words: conclusion
+========================================================
 
-Raw texts:
-```{r raw.fivenum, echo=FALSE, message=FALSE, warning=FALSE}
+<small>Raw texts five numbers summary:</small>
+```{r raw.fivenum, echo=FALSE, message=FALSE, warning=FALSE, cache = TRUE}
 five_raw <- ntok_all %>% filter(pre == "Raw texts") %>% group_by(type) %>% summarize(metric = fivenum(numtok)) %>%
   split(gl(3,5)) %>% data.frame %>% select(c(2,4,6)) %>% t() 
 rownames(five_raw) <- c("Blogpost", "News", "Tweet")
@@ -98,9 +102,8 @@ colnames(five_raw) <- c("Min", "Q1","Median","Q3","Max")
 five_raw
 ```
 
-Stop words removed:
-
-```{r stopwords.fivenum, echo=FALSE, message=FALSE, warning=FALSE}
+<small>Stop words removed five numbers summary:</small>
+```{r stopwords.fivenum, echo=FALSE, message=FALSE, warning=FALSE, cache = TRUE}
 five_raw <- ntok_all %>% filter(pre == "Stop words removed") %>% group_by(type) %>% summarize(metric = fivenum(numtok)) %>%
   split(gl(3,5)) %>% data.frame %>% select(c(2,4,6)) %>% t() 
 rownames(five_raw) <- c("Blogpost", "News", "Tweet")
@@ -108,23 +111,29 @@ colnames(five_raw) <- c("Min", "Q1","Median","Q3","Max")
 five_raw
 ```
 
-These numbers show a common trend between all 3 text sources, which is very short message. However, __blogposts__ and __news__ have very far outliers with a tremendous maximum number of words.
+<small>These numbers show a common trend between all 3 text sources, which is very short message. However, __blogposts__ and __news__ have very far outliers with a tremendous maximum number of words.</small>
 
-## Number of words: conclusion
 
-First, with stop words removed, distributions among the 3 sources are shifted down quite similarly, which is expected since we're removing the most common words. However, variations seem untouched.
+Number of words: conclusion
+========================================================
+
+<small>First, with stop words removed, distributions among the 3 sources are shifted down quite similarly, which is expected since we're removing the most common words. However, variations seem untouched.
 
 __Tweets__ are limited in number of characters by the platform, so there is a hard limit preventing outliers and force specific message formation.  
 On raw documents, there is a predominance in the number of words per message, around 20 words, the rest of documents is spread roughly uniformly.  
 However, when stop words are removed, the distribution is very roughly uniform with a decreasing right tail.  
-All of these observations aren't surprising. Indeed, since tweets are the only form of message on the social media, messages and responses with few words, like "Ok", as weel as more constructed short sentences coexist. Nonetheless, on raw documents, long sentences seem dominant. But, after stop words removal, these sentences are quite indistinguishable from other shorter tweets.
-
-__Blogposts__ show a bi-modal distribution, or in a different view, a bell-shaped curve centered around 50/60 words with a massive left tail increasing when the number of words is below 15.
-
-__News__ is the more refined distribution with a bell-shaped curve centered around 50 words.
+All of these observations aren't surprising. Indeed, since tweets are the only form of message on the social media, messages and responses with few words, like "Ok", as weel as more constructed short sentences coexist. Nonetheless, on raw documents, long sentences seem dominant. But, after stop words removal, these sentences are quite indistinguishable from other shorter tweets.</small>
 
 
-## Number of unique characters
+Number of words: conclusion
+========================================================
+
+<small>__Blogposts__ show a bi-modal distribution, or in a different view, a bell-shaped curve centered around 50/60 words with a massive left tail increasing when the number of words is below 15.
+
+__News__ is the more refined distribution with a bell-shaped curve centered around 50 words.</small>
+
+Number of unique characters
+========================================================
 
 Now let's see the same distributions but only counting the unique words per document.
 
@@ -153,7 +162,9 @@ uni_all <- rbind(uni_texts, uni_tokens)
 uni_all$pre <- ntok_all$pre
 ```
 
-## Number of unique words: histograms
+
+Number of unique words: histograms
+========================================================
 
 ```{r uninique.ntok.hist, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE}
 library(ggplot2)
@@ -169,9 +180,11 @@ ggplot(uni_all, aes(numtok, fill=..x..)) +
 
 ```
 
-## Number of unique words: boxplots
 
-```{r unique.ntok.boxplot, echo=FALSE, message=FALSE, warning=FALSE}
+Number of unique words: boxplots
+========================================================
+
+```{r unique.ntok.boxplot, echo=FALSE, message=FALSE, warning=FALSE, cache = TRUE}
 # Boxplots: partition overview
 ggplot(uni_all, aes(x=type, y=numtok, fill = pre)) + 
       geom_boxplot(color="#243847", alpha =0.8) +
@@ -179,15 +192,19 @@ ggplot(uni_all, aes(x=type, y=numtok, fill = pre)) +
       labs(x ="", y="Number of unique words per text (log scale)")
 ```
 
-## Number of unique words: conclusion
+
+Number of unique words: conclusion
+========================================================
 
 Except for the frequency values, the distributions are almost indistinguishable from the previous ones. So the number of words or unique words does not seem to have a macroscopic impact.
 
 Before ending, let's see the top 10 word pairs (bigrams), without stop words, out of all the documents for each source.
 
-## Top 10 bigrams
 
-```{r ngrams, message=FALSE, warning=FALSE, cache=TRUE, include=FALSE}
+Top 10 bigrams
+========================================================
+
+```{r ngrams, message=FALSE, warning=FALSE, cache=TRUE, include=FALSE, cache = TRUE}
 # Get all bigrams
 twit_bigram <- tokenize_ngrams(twitdata, 
                                n = 2, 
@@ -237,19 +254,23 @@ all_bigram_top <- rbind(twit_bigram_top, blog_bigram_top, news_bigram_top)
 all_bigram_top$type <- rep(c("Tweet", "Blogpost", "News"), each = 10)
 ```
 
-```{r bigram.plot, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE}
+```{r bigram.plot, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE, fig.retina = 3}
 ggplot(all_bigram_top, aes(y = reorder(bigram,count,sum), x = count, fill = type)) +
   geom_col() + 
   scale_fill_manual(values=c("#D690DE", "#9590DE", "#A6C5FF")) +
   labs(y= "")
 ```
 
-## Top 10 bigrams: conclusion
 
-### Top 3 bigrams summary
+Top 10 bigrams: conclusion
+========================================================
 
-```{r bigram.sumary, echo=FALSE, message=FALSE, warning=FALSE}
+#### Top 3 bigrams summary
+
+```{r bigram.sumary, echo=FALSE, message=FALSE, warning=FALSE, cache = TRUE}
 all_bigram_top %>% group_by(type) %>% arrange(desc(count)) %>% summarise(bigram[1:3])
 ```
 
-Obviously, most common bigrams are usual pairs or "expressions" (i.e. "looking forward"). However, it's funny to see that city names (New York, St Louis, Los Angeles) are in top 10.
+***
+
+<small>Obviously, most common bigrams are usual pairs or "expressions" (i.e. "looking forward"). However, it's funny to see that city names (New York, St Louis, Los Angeles) are in top 10.</small>
