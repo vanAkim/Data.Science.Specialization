@@ -2,8 +2,12 @@
 
 This repository holds all files and my codes written (excluding ones that needed to be forked from professors Github repo and modified) to complete the [Data Science Specialization](https://www.coursera.org/specializations/jhu-data-science) from Johns Hopkins University.
 
+---
+
 This readme file is intended to be a portal to each sub-folder dedicated to the 9 courses (there are 10 courses, but the first didn't need any files to be completed).  
 Most of these Github sub-folders contain a readme to explain what's going on, if not then the work wasn't fitted to be communicated, so there's nothing such interesting to see.  
+
+---
 
 In order of appearance, linked to the data science workflow:  
 
