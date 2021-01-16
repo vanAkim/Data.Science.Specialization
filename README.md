@@ -16,7 +16,7 @@ In order of appearance, linked to the data science workflow:
       - Topics: Cleaning data, features engineering
       
 * Course: Reproducible Research, n°5  
-      - Github: [Reproducible Research](https://github.com/vanAkim/Data.Science.Specialization/tree/master/Regression%20Models/Final%20Project)  
+      - Github: [Reproducible Research](https://github.com/vanAkim/Data.Science.Specialization/tree/master/Reproducible%20Research/FinalProject)  
       - Topics: Exploratory Data Analysis, Dataviz
       
 * Course: Statistical Inference, n°6  
